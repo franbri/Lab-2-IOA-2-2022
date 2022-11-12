@@ -127,3 +127,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Custom folders
+ampl_mswin64
+ampl_mswin64/*
