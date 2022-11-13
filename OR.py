@@ -6,7 +6,7 @@ def read_file(filename):
     nloc, ncus = file.readline().strip().split(" ")
     loc = int(nloc)
     cli = int(ncus)
-    # print(loc, cli)
+    #print(loc, cli)
 
     ICap = []
     FC = []
@@ -14,8 +14,8 @@ def read_file(filename):
         temp = file.readline().strip().split(" ")
         ICap.append(int(temp[0]))
         FC.append(float(temp[1]))
-    # print(ICap)
-    # print(FC)
+    #print(ICap)
+    #print(FC)
 
     iter_temp = ceil(loc/7)
     dem = []
@@ -27,8 +27,8 @@ def read_file(filename):
         for indexCustomerLoc in range(iter_temp):
             temp_TC = temp_TC + list(map(float, file.readline().strip().split(" ")))
         TC.append(temp_TC)
-    # print(dem)
-    # print(TC)
+    #print(dem)
+    #print(type(TC))
 
     return cli, loc, FC, ICap, dem, TC
 
