@@ -7,8 +7,8 @@ def solve(model_name, data_name):
     ampl = AMPL(Environment('./ampl_mswin64'))
 
     ampl.read(model_name)
+    #ampl.eval("option threads 2;")
     ampl.read_data(data_name)
-
     ampl.solve()
 
 if __name__ == "__main__":

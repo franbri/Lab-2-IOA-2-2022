@@ -1,0 +1,5 @@
+model ../example/1_CFLP_model.mod
+
+data ../example/CAP134_AMPL.dat
+solve;
+display x;
