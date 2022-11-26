@@ -11,9 +11,9 @@ param FC{1 .. loc};
 param dem{1 .. cli};
 param TC{1 .. cli, 1 .. loc};
 
-var x {facilities} binary;
+# var x {facilities} binary;
 # changed facilities from var to param
-# param x{facilities};
+param x{facilities};
 
 #var x {facilities} >=0, <=1;
 var y {1 .. cli, facilities} binary;

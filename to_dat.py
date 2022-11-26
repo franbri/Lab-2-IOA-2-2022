@@ -1,8 +1,8 @@
 from OR import read_file
 
-cli, loc, FC, ICap, dem, TC = read_file('datasets/cap41.txt')
+cli, loc, FC, ICap, dem, TC = read_file('datasets/cap84.txt')
 
-with open('example/cap41.dat', 'w') as dat:
+with open('example/cap84.dat', 'w') as dat:
     
     #clientes y centros
     dat.write("param cli := " + str(cli) +';\n')
