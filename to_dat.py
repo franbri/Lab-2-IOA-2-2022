@@ -1,13 +1,12 @@
 from OR import read_file
 
-cli, loc, FC, ICap, dem, TC = read_file('cap41.txt')
+cli, loc, FC, ICap, dem, TC = read_file('datasets/cap41.txt')
 
-with open('cap41.txt', 'r') as txt, open('cap41.dat', 'w') as dat:
-    dimensiones = txt.readline().split()
+with open('example/cap41.dat', 'w') as dat:
     
     #clientes y centros
-    dat.write("param loc := " + dimensiones[0] +';\n')
-    dat.write("param cli := " + dimensiones[1] +';\n')
+    dat.write("param cli := " + str(cli) +';\n')
+    dat.write("param loc := " + str(loc) +';\n')
 
     #costos de instalacion
     dat.write("param FC := ")
@@ -15,7 +14,7 @@ with open('cap41.txt', 'r') as txt, open('cap41.dat', 'w') as dat:
         if(idC+1 != len(FC)):
             dat.write(str(idC+1) + ' ' + str(C) + '\t')
         else:
-            dat.write(str(idC+1) + ' ' + str(C))
+            dat.write(str(idC+1) + '\t' + str(C))
     dat.write(';\n\n')
 
     #Capacidad de cada centro
@@ -35,19 +34,18 @@ with open('cap41.txt', 'r') as txt, open('cap41.dat', 'w') as dat:
             dat.write(str(idC+1) + ' ' + str(C))
     dat.write(';\n\n')
 
-    dat.write("param TC := ")
-    for i in range(1, len(TC) + 1):
-        if(i != len(TC)):
-            dat.write(str(i) + ' ')
+    dat.write("param TC : ")
+    for i in range(1, len(TC[0]) + 1):
+        if(i != len(TC[0])):
+            dat.write(str(i) + '\t')
         else:
             dat.write(str(i) + ' :=')
-    dat.write('\n\n')
+    dat.write('\n')
 
     for list in TC:
-        dat.write(str(TC.index(list) + 1) + '\t')
+        dat.write('\n' + str(TC.index(list) + 1))
         for element in list:
-            dat.write(str(element) + ' ')
-        dat.write('\n')
+            dat.write('\t' + str(element))
+    dat.write(';\n')
 
-    txt.close()
     dat.close()
