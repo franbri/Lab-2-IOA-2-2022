@@ -6,8 +6,8 @@ with open('cap41.txt', 'r') as txt, open('cap41.dat', 'w') as dat:
     dimensiones = txt.readline().split()
     
     #clientes y centros
-    dat.write("param cli := " + dimensiones[0] +';\n')
-    dat.write("param loc := " + dimensiones[1] +';\n')
+    dat.write("param loc := " + dimensiones[0] +';\n')
+    dat.write("param cli := " + dimensiones[1] +';\n')
 
     #costos de instalacion
     dat.write("param FC := ")
