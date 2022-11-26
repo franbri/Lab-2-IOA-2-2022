@@ -5,27 +5,23 @@ import numpy as np
 from multiprocessing import Pool
 
 
-def solve(model_name, data_name, facilities):
+def solve(model_name, data_name, facilities=0):
     ampl = AMPL(Environment('./ampl_mswin64'))
-
     ampl.read(model_name)
     #ampl.eval("option threads 2;")
     ampl.read_data(data_name)
-
-    x = ampl.get_parameter('x')
-
-    x.set_values(facilities)
-
-
+    #x = ampl.get_parameter('x')
+    #x.set_values(facilities)
     ampl.solve()
 
 if __name__ == "__main__":
-    solution = pd.DataFrame([np.arange(50), np.ones(50)])
+    # solution = pd.DataFrame([np.arange(50), np.ones(50)])
 
-    with Pool(processes=2) as p:
-       data = p.starmap(solve, [(os.path.join("example/1_CFLP_model.mod"), os.path.join("example/CAP134_AMPL.dat"), solution), 
-       (os.path.join("example/1_CFLP_model.mod"), os.path.join("example/1_CFLP_Data.dat"), solution), 
-       (os.path.join("example/1_CFLP_model.mod"), os.path.join("example/CAP134_AMPL.dat"), solution)])
+    calls = [(os.path.join("example/1_CFLP_model.mod"), os.path.join("processed_datasets/" + data)) for data in os.listdir("processed_datasets")]
+    print(len(calls))
+
+    with Pool(processes=12) as p:
+       data = p.starmap(solve, calls)
 
 
 #def run(model, data):
