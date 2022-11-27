@@ -5,24 +5,59 @@ import numpy as np
 from multiprocessing import Pool
 
 
-def solve(model_name, data_name, facilities=0):
+def solve(model_name, data_name):
     ampl = AMPL(Environment('./ampl_mswin64'))
     ampl.read(model_name)
-    #ampl.eval("option threads 2;")
+    #ampl.eval("option gurobi_options 'threads=2';")
     ampl.read_data(data_name)
     #x = ampl.get_parameter('x')
     #x.set_values(facilities)
     ampl.solve()
+    try:
+        totalcost = ampl.get_objective('Total_Cost').value()
+    except:
+        totalcost = 0
+        print("bruh")
+        return totalcost
+    return totalcost
+
+def solveAlter(model_name, data_name, openFacilities = []):
+    ampl = AMPL(Environment('./ampl_mswin64'))
+    ampl.read(model_name)
+    #ampl.eval("option gurobi_options 'threads=2';")
+    ampl.setOption("gurobi_options", 'threads=2')
+    ampl.read_data(data_name)
+    loc = int(ampl.get_parameter('loc').value())
+    facilities = openFacilities
+    if len(facilities) != loc:
+        facilities = pd.DataFrame(np.array([np.ones(loc).astype(int)]).transpose(), columns=["x"])
+        facilities = facilities.set_index(facilities.index + 1)
+        return 0
+    else:
+        print(np.array([facilities]).transpose())
+        facilities = pd.DataFrame(np.array([facilities]).transpose(), columns=["x"])
+        facilities = facilities.set_index(facilities.index + 1)
+    
+    x = ampl.get_parameter('x')
+    x.set_values(facilities)
+    try:
+        ampl.solve()
+        totalcost = ampl.get_objective('Total_Cost').value()
+    except:
+        totalcost = 1000000000000000000000000
+        return totalcost
+    
+    print(ampl.get_objective('Total_Cost').exitcode())
+    ampl.close()
+    return (totalcost, openFacilities)
 
 if __name__ == "__main__":
     # solution = pd.DataFrame([np.arange(50), np.ones(50)])
 
-    calls = [(os.path.join("example/1_CFLP_model.mod"), os.path.join("processed_datasets/" + data)) for data in os.listdir("processed_datasets")]
-    print(len(calls))
+    calls = [(os.path.join("example/model_param.mod"), os.path.join("processed_datasets/" + data)) for data in os.listdir("processed_datasets")]
 
     with Pool(processes=12) as p:
-       data = p.starmap(solve, calls)
-
+        data = p.starmap(solveAlter, calls)
 
 #def run(model, data):
 #    runfile = open("AMPL_run.run", "w")
