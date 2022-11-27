@@ -25,6 +25,7 @@ def solveAlter(model_name, data_name, openFacilities = []):
     ampl = AMPL(Environment('./ampl_mswin64'))
     ampl.read(model_name)
     #ampl.eval("option gurobi_options 'threads=2';")
+    ampl.setOption("solver_msg", 0)
     ampl.setOption("gurobi_options", 'threads=2')
     ampl.read_data(data_name)
     loc = int(ampl.get_parameter('loc').value())
@@ -34,22 +35,21 @@ def solveAlter(model_name, data_name, openFacilities = []):
         facilities = facilities.set_index(facilities.index + 1)
         return 0
     else:
-        print(np.array([facilities]).transpose())
+        #print(np.array([facilities]).transpose())
         facilities = pd.DataFrame(np.array([facilities]).transpose(), columns=["x"])
         facilities = facilities.set_index(facilities.index + 1)
     
     x = ampl.get_parameter('x')
     x.set_values(facilities)
-    try:
-        ampl.solve()
-        totalcost = ampl.get_objective('Total_Cost').value()
-    except:
-        totalcost = 1000000000000000000000000
-        return totalcost
-    
-    print(ampl.get_objective('Total_Cost').exitcode())
-    ampl.close()
-    return (totalcost, openFacilities)
+    ampl.solve()
+
+    totalcost = ampl.get_objective('Total_Cost').value()
+    if "infeasible" in ampl.get_objective('Total_Cost').result():
+        #print("\n ampl status", ampl.get_objective('Total_Cost').result(), "\n")
+        #print("BRUHHHHHHHHHH")
+        totalcost = float('inf')
+
+    return totalcost
 
 if __name__ == "__main__":
     # solution = pd.DataFrame([np.arange(50), np.ones(50)])

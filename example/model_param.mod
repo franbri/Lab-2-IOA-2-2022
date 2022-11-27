@@ -13,6 +13,7 @@ param TC{1 .. cli, 1 .. loc};
 
 # var x {facilities} binary;
 # changed facilities from var to param
+
 param x{facilities};
 
 #var x {facilities} >=0, <=1;
