@@ -1,84 +1,53 @@
 from amplpy import AMPL, Environment
 import os
-import sys
 import pandas as pd
 import numpy as np
 from multiprocessing import Pool
 
-def mute():
-    sys.stdout = open(os.devnull, 'w')
-
+# this function returns the data from a model using ampl interpreter
+## this is easier to do that recreate a reader
 def extractData(model_name, data_name):
+    # create a ampl instance with given model and data
     ampl = AMPL(Environment('./ampl_mswin64'))
     ampl.read(model_name)
-    #ampl.eval("option gurobi_options 'threads=2';")
-    ampl.read_data(data_name)
-    cli = int(ampl.get_parameter('cli').value())
-    loc = int(ampl.get_parameter('loc').value())
-    FC = ampl.get_parameter('FC').get_values().to_pandas()["FC"]
-    ICap = ampl.get_parameter('ICap').get_values().to_pandas()["ICap"]
-    dem = ampl.get_parameter('dem').get_values().to_pandas()["dem"]
-    TC = ampl.get_parameter('TC').get_values().to_pandas()
+    ampl.readData(data_name)
+    #retireve values from ampl instance
+    cli = int(ampl.getParameter('cli').value())
+    loc = int(ampl.getParameter('loc').value())
+    FC = ampl.getParameter('FC').getValues().toPandas()["FC"]
+    ICap = ampl.getParameter('ICap').getValues().toPandas()["ICap"]
+    dem = ampl.getParameter('dem').getValues().toPandas()["dem"]
+    TC = ampl.getParameter('TC').getValues().toPandas()
+    # return values from ampl
     return cli, loc, FC, ICap, dem, TC
 
-
-def solve(model_name, data_name):
-    ampl = AMPL(Environment('./ampl_mswin64'))
-    ampl.read(model_name)
-    #ampl.eval("option gurobi_options 'threads=2';")
-    ampl.read_data(data_name)
-    #x = ampl.get_parameter('x')
-    #x.set_values(facilities)
-    ampl.solve()
-    try:
-        totalcost = ampl.get_objective('Total_Cost').value()
-    except:
-        totalcost = 0
-        print("bruh")
-        return totalcost
-    return totalcost
-
+# this is the solver wrapper that calls ampl with a given model, data and the solution to optimize
 def solveAlter(model_name, data_name, openFacilities = []):
+     # create a ampl instance with given model and data
     ampl = AMPL(Environment('./ampl_mswin64'))
     ampl.read(model_name)
-    #ampl.eval("option gurobi_options 'threads=2';")
+    # options to reduce output and limit threads of gurobi to one to solve multiple problems in parallel
     ampl.setOption("solver_msg", 0)
     ampl.setOption("gurobi_options", 'threads=1')
     ampl.read_data(data_name)
-    loc = int(ampl.get_parameter('loc').value())
-    facilities = openFacilities
-    if len(facilities) != loc:
-        facilities = pd.DataFrame(np.array([np.ones(loc).astype(int)]).transpose(), columns=["x"])
-        facilities = facilities.set_index(facilities.index + 1)
-        return 0
-    else:
-        #print(np.array([facilities]).transpose())
-        facilities = pd.DataFrame(np.array([facilities]).transpose(), columns=["x"])
-        facilities = facilities.set_index(facilities.index + 1)
-    
+    # set the facilities parameter in the model 
+    facilities = pd.DataFrame(np.array([openFacilities]).transpose(), columns=["x"])
+    facilities = facilities.set_index(facilities.index + 1)
     x = ampl.get_parameter('x')
     x.set_values(facilities)
+    # solve the problem with ampl
     ampl.solve()
-
+    # get cost of the solution
     totalcost = ampl.get_objective('Total_Cost').value()
+    # if given solution is infeasible set the cost to inf/highNumber
     if "infeasible" in ampl.get_objective('Total_Cost').result():
-        #print("\n ampl status", ampl.get_objective('Total_Cost').result(), "\n")
-        #print("BRUHHHHHHHHHH")
         totalcost = float('inf')
-
+    # return the cost of the solution
     return totalcost
 
-
-#if __name__ != "__main__":
-#    mute()
-
+# guard to not let this code execute when importing and multithreading, but execute when calling this especific file
+# for testing purposes
 if __name__ == "__main__":
-    # solution = pd.DataFrame([np.arange(50), np.ones(50)])
-
     calls = [(os.path.join("example/model_param.mod"), os.path.join("processed_datasets/" + data)) for data in os.listdir("processed_datasets")]
-
-    with Pool(processes=12) as p:
+    with Pool() as p:
         data = p.starmap(solveAlter, calls)
-
-#def run(model, data):
-#    runfile = open("AMPL_run.run", "w")
