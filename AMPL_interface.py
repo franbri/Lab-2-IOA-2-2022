@@ -1,9 +1,12 @@
 from amplpy import AMPL, Environment
 import os
+import sys
 import pandas as pd
 import numpy as np
 from multiprocessing import Pool
 
+def mute():
+    sys.stdout = open(os.devnull, 'w')
 
 def extractData(model_name, data_name):
     ampl = AMPL(Environment('./ampl_mswin64'))
@@ -40,7 +43,7 @@ def solveAlter(model_name, data_name, openFacilities = []):
     ampl.read(model_name)
     #ampl.eval("option gurobi_options 'threads=2';")
     ampl.setOption("solver_msg", 0)
-    ampl.setOption("gurobi_options", 'threads=2')
+    ampl.setOption("gurobi_options", 'threads=1')
     ampl.read_data(data_name)
     loc = int(ampl.get_parameter('loc').value())
     facilities = openFacilities
@@ -64,6 +67,10 @@ def solveAlter(model_name, data_name, openFacilities = []):
         totalcost = float('inf')
 
     return totalcost
+
+
+#if __name__ != "__main__":
+#    mute()
 
 if __name__ == "__main__":
     # solution = pd.DataFrame([np.arange(50), np.ones(50)])

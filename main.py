@@ -11,7 +11,6 @@ def betterinitSolution(problemName):
     # cli, loc, FC, ICap, dem, TC = read_file('datasets/' + filename)
     cli, loc, FC, ICap, dem, TC = extractData(os.path.join("example/model_param.mod"), os.path.join("processed_datasets/" + problemName + ".dat"))
 
-    print(ICap)
     if max(dem) > max(ICap):
         print("the problem is infeasible")
         exit()
@@ -26,26 +25,6 @@ def betterinitSolution(problemName):
         out = np.append(out, solution, axis=0)
     return out
 
-def initSolution(filename):
-    cli, loc, FC, ICap, dem, TC = read_file('datasets/' + filename)
-
-    mincap = sum(dem)
-    # si tengo tiempo aca pongo una wea que busque mejores soluciones
-
-    if max(dem) > max(ICap):
-        print("the problem is infeasible")
-        exit()
-
-    sol0 = np.zeros(loc).astype(int)
-    sumcap = 0
-    for index, cap in enumerate(ICap):
-        sumcap += cap
-        sol0[index] = 1
-        if sumcap > mincap:
-            # print("bruh")
-            break
-    return sol0
-
 def neighbors(solution):
     base = np.array(solution).reshape(len(solution)).tolist()
     solutions = np.array(base * len(base)).reshape((len(base), len(base)))
@@ -53,7 +32,7 @@ def neighbors(solution):
     solutions = np.abs(solutions).astype(int)
     return solutions
 
-def main(problemName, iterations):
+def tabu(problemName, iterations):
     neighborhood = betterinitSolution(problemName)
 
     calls = [(os.path.join("example/model_param.mod"), os.path.join("processed_datasets/" + problemName + ".dat"), solution) for solution in neighborhood]
@@ -70,12 +49,19 @@ def main(problemName, iterations):
     solution = neighborhood[0]
     bestSolution = solution
     bestCost = cost[0]
+    allCosts = [bestCost]
 
     tabu = [tuple(bestSolution)]
 
     # main loop
     for iter in range(iterations):
         neighborhood = neighbors(solution)
+        to_delete = []
+        for sol in neighborhood:
+            if tuple(sol) in tabu:
+                to_delete.append(tuple(sol))
+                
+        neighborhood = np.delete(neighborhood, to_delete, 0)
 
         calls = [(os.path.join("example/model_param.mod"), os.path.join("processed_datasets/" + problemName + ".dat"), solution) for solution in neighborhood]
         with Pool() as p:
@@ -86,6 +72,10 @@ def main(problemName, iterations):
 
         cost = cost[order]
         neighborhood = neighborhood[order]
+        infeasible = np.where(cost == float('inf'))
+        for index in infeasible:
+            to_delete.append(tuple(neighborhood[index]))
+
 
         for index in range(len(cost)):
             if cost[index] < bestCost:
@@ -97,11 +87,20 @@ def main(problemName, iterations):
                 tabu.append(tuple(solution))
                 break
         
-
-        print(bestSolution)
-        print(bestCost)
-        print(cost)
-        print(neighborhood)
+        allCosts.append(cost[index])
+        print("tamaño lista tabu", len(tabu))
+        #print(solution)
+        if len(tabu) > len(bestSolution)*3:
+            print("deleted from tabu")
+            tabu = tabu[1:]
+        #print(allCosts)
+        print("iteracion numero:", iter)
+        #print("mejor solucion", bestSolution)
+        #print(bestSolution)
+        #print(bestCost)
+        #print(cost)
+        #print(neighborhood)
+    return bestSolution, bestCost, allCosts
 
 
     #for iteration in range(iterations):
@@ -109,4 +108,4 @@ def main(problemName, iterations):
     #print(cost, solution)
 
 if __name__ == "__main__":
-    main("cap134", 10)
+    tabu("capa", 10)
