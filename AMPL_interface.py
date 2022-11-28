@@ -22,7 +22,7 @@ def extractData(model_name, data_name):
     return cli, loc, FC, ICap, dem, TC
 
 # this is the solver wrapper that calls ampl with a given model, data and the solution to optimize
-def solveAlter(model_name, data_name, openFacilities = []):
+def solve(model_name, data_name, openFacilities = []):
      # create a ampl instance with given model and data
     ampl = AMPL(Environment('./ampl_mswin64'))
     ampl.read(model_name)
@@ -50,4 +50,4 @@ def solveAlter(model_name, data_name, openFacilities = []):
 if __name__ == "__main__":
     calls = [(os.path.join("example/model_param.mod"), os.path.join("processed_datasets/" + data)) for data in os.listdir("processed_datasets")]
     with Pool() as p:
-        data = p.starmap(solveAlter, calls)
+        data = p.starmap(solve, calls)
