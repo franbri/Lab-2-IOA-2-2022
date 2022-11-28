@@ -1,14 +1,10 @@
-from OR import read_file
 import numpy as np
-import pandas as pd
 import math
 from AMPL_interface import solveAlter, extractData
 import os
 from multiprocessing import Pool
 
-
 def betterinitSolution(problemName):
-    # cli, loc, FC, ICap, dem, TC = read_file('datasets/' + filename)
     cli, loc, FC, ICap, dem, TC = extractData(os.path.join("example/model_param.mod"), os.path.join("processed_datasets/" + problemName + ".dat"))
 
     if max(dem) > max(ICap):
