@@ -47,7 +47,7 @@ def neighbors(solution):
 # main loop of the tabu search heuristic for a given model and data, also takes the number of iterations
 def tabu(modelFile, problemFile, iterations):
     # get solutions to the problem
-    neighborhood = initSolution(problemFile)
+    neighborhood = initSolution(modelFile, problemFile)
     # calculate the cost of the solutions
     calls = [(os.path.join("models/" + modelFile), os.path.join("processed_datasets/" + problemFile + ".dat"), solution) for solution in neighborhood]
     with Pool(processes=12) as p:
@@ -123,4 +123,4 @@ def tabu(modelFile, problemFile, iterations):
     return bestSolution, bestCost, allCosts
 
 if __name__ == "__main__":
-    tabu("model_param.mod", "capa.dat", 10)
+    tabu("model_param_relaxed.mod", "capa.dat", 10)
