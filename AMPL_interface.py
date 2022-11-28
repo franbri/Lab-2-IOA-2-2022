@@ -5,6 +5,20 @@ import numpy as np
 from multiprocessing import Pool
 
 
+def extractData(model_name, data_name):
+    ampl = AMPL(Environment('./ampl_mswin64'))
+    ampl.read(model_name)
+    #ampl.eval("option gurobi_options 'threads=2';")
+    ampl.read_data(data_name)
+    cli = int(ampl.get_parameter('cli').value())
+    loc = int(ampl.get_parameter('loc').value())
+    FC = ampl.get_parameter('FC').get_values().to_pandas()["FC"]
+    ICap = ampl.get_parameter('ICap').get_values().to_pandas()["ICap"]
+    dem = ampl.get_parameter('dem').get_values().to_pandas()["dem"]
+    TC = ampl.get_parameter('TC').get_values().to_pandas()
+    return cli, loc, FC, ICap, dem, TC
+
+
 def solve(model_name, data_name):
     ampl = AMPL(Environment('./ampl_mswin64'))
     ampl.read(model_name)

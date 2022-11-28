@@ -2,14 +2,16 @@ from OR import read_file
 import numpy as np
 import pandas as pd
 import math
-from AMPL_interface import solveAlter
+from AMPL_interface import solveAlter, extractData
 import os
 from multiprocessing import Pool
 
 
-def betterinitSolution(filename):
-    cli, loc, FC, ICap, dem, TC = read_file('datasets/' + filename)
+def betterinitSolution(problemName):
+    # cli, loc, FC, ICap, dem, TC = read_file('datasets/' + filename)
+    cli, loc, FC, ICap, dem, TC = extractData(os.path.join("example/model_param.mod"), os.path.join("processed_datasets/" + problemName + ".dat"))
 
+    print(ICap)
     if max(dem) > max(ICap):
         print("the problem is infeasible")
         exit()
@@ -23,11 +25,6 @@ def betterinitSolution(filename):
         np.random.shuffle(solution[0])
         out = np.append(out, solution, axis=0)
     return out
-
-
-
-
-    np.random.shuffle(solution)
 
 def initSolution(filename):
     cli, loc, FC, ICap, dem, TC = read_file('datasets/' + filename)
@@ -49,11 +46,6 @@ def initSolution(filename):
             break
     return sol0
 
-# tabu serach swap
-#def tabu():
-#    lenghtTabu = 10 #
-#    refresh = 20 #iterations
-
 def neighbors(solution):
     base = np.array(solution).reshape(len(solution)).tolist()
     solutions = np.array(base * len(base)).reshape((len(base), len(base)))
@@ -62,7 +54,7 @@ def neighbors(solution):
     return solutions
 
 def main(problemName, iterations):
-    neighborhood = betterinitSolution(problemName + ".txt")
+    neighborhood = betterinitSolution(problemName)
 
     calls = [(os.path.join("example/model_param.mod"), os.path.join("processed_datasets/" + problemName + ".dat"), solution) for solution in neighborhood]
     with Pool(processes=12) as p:
@@ -99,7 +91,7 @@ def main(problemName, iterations):
             if cost[index] < bestCost:
                 bestSolution = neighborhood[index]
                 bestCost = cost[index]
-                
+
             if tuple(neighborhood[index]) not in tabu:
                 solution = neighborhood[index]
                 tabu.append(tuple(solution))
