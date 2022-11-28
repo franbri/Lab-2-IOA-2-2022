@@ -24,6 +24,6 @@ minimize Total_Cost: (sum {j in facilities} x[j] * FC[j]) + (sum {j in facilitie
 
 s.t.
 # relaxed restricction of only one facility per customer
-#allocation1 {i in 1..cli}:    	sum {j in facilities} y[i,j] = 1;
+allocation1 {i in 1..cli}:    	sum {j in facilities} y[i,j] >= 1;
 allocation2 {i in 1..cli, j in facilities}: y[i,j] <= x[j];
 capacity {j in facilities}: sum {i in 1..cli} dem[i]*y[i,j] <= ICap[j]*x[j];
