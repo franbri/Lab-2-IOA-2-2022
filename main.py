@@ -9,11 +9,6 @@ def initSolution(modelFile, problemFile):
     # get data from the especific instance of the problem
     cli, loc, FC, ICap, dem, TC = extractData(os.path.join("models/" + modelFile), os.path.join("processed_datasets/" + problemFile))
 
-    # if a client demands more than the capacity of the highest center stop this program from running
-    if max(dem) > max(ICap):
-        print("the problem is infeasible")
-        exit()
-
     # number of minimum centers to open satisfying all clients
     howmany = math.ceil(sum(dem)/min(ICap))
     # create a list of ones representing allthe open centers
@@ -123,4 +118,4 @@ def tabu(modelFile, problemFile, iterations):
     return bestSolution, bestCost, allCosts
 
 if __name__ == "__main__":
-    tabu("model_param_relaxed.mod", "capa.dat", 10)
+    tabu("model_param.mod", "capa.dat", 10)
