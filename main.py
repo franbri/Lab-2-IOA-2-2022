@@ -49,7 +49,7 @@ def tabu(modelFile, problemFile, iterations):
     # get solutions to the problem
     neighborhood = initSolution(modelFile, problemFile)
     # calculate the cost of the solutions
-    calls = [(os.path.join("models/" + modelFile), os.path.join("processed_datasets/" + problemFile + ".dat"), solution) for solution in neighborhood]
+    calls = [(os.path.join("models/" + modelFile), os.path.join("processed_datasets/" + problemFile), solution) for solution in neighborhood]
     with Pool(processes=12) as p:
         cost = p.starmap(solve, calls)
     # get an sorting index
