@@ -36,7 +36,7 @@ def neighbors(solution):
     # substract identity matrix from the solutions matrix
     solutions = (solutions - np.eye(len(base)))
     # absolute to change -1 to 1
-    solutions = np.abs(solutions).astype(int)
+    solutions = (solutions**2).astype(int)
     return solutions
 
 # main loop of the tabu search heuristic for a given model and data, also takes the number of iterations
@@ -97,23 +97,23 @@ def tabu(modelFile, problemFile, iterations):
             # select new solution to next iteration
             if tuple(neighborhood[index]) not in tabu:
                 solution = neighborhood[index]
+                costActual = cost[index]
                 tabu.append(tuple(solution))
                 break
         # add cost to metrics list
         allCosts.append(cost[index])
         # remove from tabu list when list is full
         if len(tabu) > len(bestSolution)*2:
-            print("deleted from tabu")
             tabu = tabu[1:]
         # feedback prints, to show user what the program is doing
         #print(allCosts)
         #print("tamaño lista tabu", len(tabu))
         #print(solution)
-        print("iteracion numero:", iter)
+        #print("iteracion numero:", iter)
         #print("mejor solucion", bestSolution)
         #print(bestSolution)
         #print(bestCost)
-        #print(cost)
+        print(costActual)
         #print(neighborhood)
     return bestSolution, bestCost, allCosts
 

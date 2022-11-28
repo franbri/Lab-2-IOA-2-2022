@@ -18,6 +18,7 @@ def extractData(model_name, data_name):
     ICap = ampl.getParameter('ICap').getValues().toPandas()["ICap"]
     dem = ampl.getParameter('dem').getValues().toPandas()["dem"]
     TC = ampl.getParameter('TC').getValues().toPandas()
+    ampl.close()
     # return values from ampl
     return cli, loc, FC, ICap, dem, TC
 
@@ -48,6 +49,6 @@ def solve(model_name, data_name, openFacilities = []):
 # guard to not let this code execute when importing and multithreading, but execute when calling this especific file
 # for testing purposes
 if __name__ == "__main__":
-    calls = [(os.path.join("example/model_param.mod"), os.path.join("processed_datasets/" + data)) for data in os.listdir("processed_datasets")]
+    calls = [(os.path.join("models/model_param.mod"), os.path.join("processed_datasets/" + data)) for data in os.listdir("processed_datasets")]
     with Pool() as p:
         data = p.starmap(solve, calls)
